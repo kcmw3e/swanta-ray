@@ -3,9 +3,6 @@
 // 24-775 Bioinspired Robot Design and Experimentation
 // Carnegie Mellon University
 // -------------------------------------------------------------------------- //
-//
-// comm.c
-// Implementation of comm.h
 
 #include <Arduino_DebugUtils.h>
 
