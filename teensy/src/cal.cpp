@@ -39,9 +39,6 @@ void Cal::tick() {
 }
 
 void Cal::add(task_fn* fn, uint32_t dt) {
-  DEBUG_INFO("Adding task.");
   Task task(fn, dt);
-  DEBUG_INFO("> Task created.");
   _tasks.push_back(task);
-  DEBUG_INFO("> Task added.");
 }
