@@ -33,12 +33,15 @@ bool Cal::setup() {
 void Cal::tick() {
   _t = millis();
   for (size_t i = 0; i < _tasks.size(); i++) {
-    Task task = _tasks[i];
+    Task& task = _tasks[i];
     task(_t);
   }
 }
 
 void Cal::add(task_fn* fn, uint32_t dt) {
+  DEBUG_INFO("Adding task.");
   Task task(fn, dt);
+  DEBUG_INFO("> Task created.");
   _tasks.push_back(task);
+  DEBUG_INFO("> Task added.");
 }

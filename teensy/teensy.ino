@@ -21,10 +21,15 @@ using namespace std;
 
 #define SD_CARD BUILTIN_SDCARD
 
+#define HEARTBEAT_DT 1000
+
 Comm comm;
 Lumberyard ly;
 Crumb crumb;
 Cal cal;
+
+bool setup_tasks();
+void heartbeat();
 
 void setup() {
   if (!comm.setup()) while (true);
@@ -35,6 +40,12 @@ void setup() {
 
   if (!crumb.setup()) while (true);
   DEBUG_INFO("Current sensors ready.");
+
+  pinMode(LED_BUILTIN, OUTPUT);
+  
+  if (!setup_tasks()) while (true);
+  DEBUG_INFO("Tasks setup.");
+
 }
 
 void loop() {
@@ -57,4 +68,16 @@ void serialEvent() {
     dir.erase(0, dir.find_first_not_of(" "));
     ly.mkdir(dir);
   }
+}
+
+bool setup_tasks() {
+  cal.add(heartbeat, HEARTBEAT_DT);
+
+  return true;
+}
+
+void heartbeat() {
+  static uint32_t beat = LOW;
+  digitalWrite(LED_BUILTIN, beat);
+  beat = !beat;
 }
