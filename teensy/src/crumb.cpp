@@ -30,6 +30,6 @@ float Crumb::operator[](size_t i) {
 
 void Crumb::read() {
   for (size_t i = 0; i < _num_pins; i++) {
-    _currents[i] = analogRead(_pins[i]) / 1023.0 * 3.3 * _calibrations[i];
+    _currents[i] = analogRead(_pins[i])/1023.0*3.3*_calibrations[i];
   }
 }
