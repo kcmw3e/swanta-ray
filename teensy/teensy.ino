@@ -31,6 +31,7 @@ Cal cal;
 
 bool setup_tasks();
 void heartbeat();
+void crumb_read();
 
 void setup() {
   if (!comm.setup()) while (true);
@@ -73,7 +74,7 @@ void serialEvent() {
 
 bool setup_tasks() {
   cal.add(heartbeat, HEARTBEAT_DT);
-  cal.add(crumb.read, CRUMB_DT);
+  cal.add(crumb_read, CRUMB_DT);
 
   return true;
 }
@@ -82,4 +83,8 @@ void heartbeat() {
   static uint32_t beat = LOW;
   digitalWrite(LED_BUILTIN, beat);
   beat = !beat;
+}
+
+void crumb_read() {
+  crumb.read();
 }
