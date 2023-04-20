@@ -11,16 +11,25 @@
 #ifndef SWANTA_FIN_H
 #define SWANTA_FIN_H
 
-class Fin {
-  static const int _calibrations[];
-  static const uint32_t _pins[];
-  static const size_t _num_pins;
+const uint8_t FIN_PINS[] = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 28, 29, 36, 37 };
+const size_t FIN_NUM_PINS = sizeof(FIN_PINS)/sizeof(*FIN_PINS);
+
+#define FIN_PWM_FREQ 240.0 // Hz
+#define FIN_PWM_BITS 15
+
+#define FIN_POS_LO 0 // deg
+#define FIN_POS_HI 180 // deg
+
+#define FIN_PWM_LO 800 // microseconds
+#define FIN_PWM_HI 2200 // microseconds
   
+#define FIN_ANALOG_LO 0
+#define FIN_ANALOG_HI 1 << FIN_PWM_BITS
+
+class Fin {
   private:
-    int tmp;
-    int _pos[];
+    int _pos[FIN_NUM_PINS];
   public:
-    Fin();
     bool setup();
     void set(int pos[]);
     void write();

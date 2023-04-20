@@ -13,28 +13,28 @@
 
 #include "fin.h"
 
-const int Fin::_calibrations[] = { 0 };
-const uint32_t Fin::_pins[] = { 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 38, 39 };
-const size_t Fin::_num_pins = sizeof(Fin::_pins)/sizeof(*Fin::_pins);
-
-Fin::Fin() {
-  _pos[Fin::_num_pins] = {0};
-}
-
 bool Fin::setup() {
-  for (size_t i = 0; i < _num_pins; i++) {
-    pinMode(_pins[i], OUTPUT);
+  for (size_t i = 0; i < FIN_NUM_PINS; i++) {
+    uint8_t pin = FIN_PINS[i];
+    analogWriteFrequency(pin, FIN_PWM_FREQ);
+    analogWriteResolution(FIN_PWM_BITS);
+    pinMode(pin, OUTPUT);
   }
 
   return true;
 }
 
 void Fin::set(int pos[]) {
-  for (size_t i = 0; i < Fin::_num_pins; i++) _pos[i] = pos[i];
+  for (size_t i = 0; i < FIN_NUM_PINS; i++) _pos[i] = pos[i];
 }
 
 void Fin::write() {
-  for (size_t i = 0; i < _num_pins; i++) {
-    analogWrite(_pins[i], _pos[i]*_calibrations[i]);
+  for (size_t i = 0; i < FIN_NUM_PINS; i++) {
+    int pos = _pos[i];
+    int pul = map(pos, FIN_POS_LO, FIN_POS_HI, FIN_PWM_LO, FIN_PWM_HI);
+
+    int val = (pul*32757)/4167;
+
+    analogWrite(FIN_PINS[i], val);
   }
 }
