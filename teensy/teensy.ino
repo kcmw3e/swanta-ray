@@ -14,6 +14,8 @@
 
 #include "src/comm.h"
 #include "src/lumberyard.h"
+#include "src/crumb.h"
+#include "src/cal.h"
 
 using namespace std;
 
@@ -21,20 +23,22 @@ using namespace std;
 
 Comm comm;
 Lumberyard ly;
-
-File root; // root directory
+Crumb crumb;
+Cal cal;
 
 void setup() {
   if (!comm.setup()) while (true);
-  Serial.println("Serial connected.");
+  DEBUG_INFO("Serial connected.");
 
   if (!ly.setup()) while (true);
-  Serial.println("SD card connected.");
+  DEBUG_INFO("SD card connected.");
+
+  if (!crumb.setup()) while (true);
+  DEBUG_INFO("Current sensors ready.");
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
+  cal.tick();
 }
 
 void serialEvent() {
