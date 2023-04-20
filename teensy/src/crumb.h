@@ -13,16 +13,14 @@
 
 #include <Arduino.h>
 
+const float CRUMB_CALIBRATIONS[] = { 1.005, 1.004, 1.002, 1.006, 0.996, 1.005, 1.004, 1.005, 1.002, 1.007, 1.002, 1.005, 1.005, 1.004, 1.002, 0.998 };
+const uint8_t CRUMB_PINS[] = { 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 38, 39 };
+const size_t CRUMB_NUM_PINS = sizeof(CRUMB_PINS)/sizeof(*CRUMB_PINS);
+
 class Crumb {
-  static const float _calibrations[];
-  static const uint32_t _pins[];
-  static const size_t _num_pins;
-  
   private:
-    int tmp;
-    float _currents[];
+    float _currents[CRUMB_NUM_PINS];
   public:
-    Crumb();
     bool setup();
     void read();
     float operator[](size_t i);
