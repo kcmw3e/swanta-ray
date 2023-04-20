@@ -22,6 +22,7 @@ using namespace std;
 #define SD_CARD BUILTIN_SDCARD
 
 #define HEARTBEAT_DT 1000
+#define CRUMB_DT 100
 
 Comm comm;
 Lumberyard ly;
@@ -42,7 +43,7 @@ void setup() {
   DEBUG_INFO("Current sensors ready.");
 
   pinMode(LED_BUILTIN, OUTPUT);
-  
+
   if (!setup_tasks()) while (true);
   DEBUG_INFO("Tasks setup.");
 
@@ -72,6 +73,7 @@ void serialEvent() {
 
 bool setup_tasks() {
   cal.add(heartbeat, HEARTBEAT_DT);
+  cal.add(crumb.read, CRUMB_DT);
 
   return true;
 }
