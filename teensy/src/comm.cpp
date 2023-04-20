@@ -24,11 +24,9 @@ bool Comm::setup() {
 }
 
 void Comm::read() {
-  DEBUG_INFO("Reading serial.");
   size_t n = Serial.available();
-  DEBUG_INFO("> Available to read: %zu", n);
-  if (n > 0) n = Serial.readBytes(_buf, n); // fix to read circular, fix to check n < len(buf)
-  DEBUG_INFO("> Read: %zu", n);
+  if (n == 0) return;
+  Serial.readBytes(_buf, n); // fix to read circular, fix to check n < len(buf)
   _buf_tail = _buf_head + n;
 }
 
@@ -39,9 +37,8 @@ string Comm::next() {
     i++;
   }
 
-  DEBUG_INFO("Newline found at %zu", i);
-
   string s(_buf, _buf_head, i);
+  _buf_tail = _buf_head;
   //_buf_head = i + 1; // fix to be circular
 
   return s;
