@@ -14,7 +14,7 @@ Comm::Comm() {
 }
 
 bool Comm::setup() {
-  Serial.begin(BAUD);
+  Serial1.begin(BAUD);
   //while (!Serial); // wait for serial to connect
   delay(1000);
 
@@ -44,13 +44,16 @@ string Comm::next() {
   return s;
 }
 
-void Comm::next_servos(int pos[]) {
-  size_t n = Serial.available();
-  if (n < COMM_MSG_LEN) return;
+bool Comm::next_servos(int pos[]) {
+  int n = Serial1.available();
+  if (n <= 0) return false;
 
-  Serial.readBytes(_buf, COMM_MSG_LEN);
-  for (size_t i = 0; i < sizeof(COMM_HEADER); i++) if (_buf[i] != ((char*)&COMM_HEADER)[i]) return;
-  for (size_t i = 0; i < sizeof(COMM_TAIL); i++) if (_buf[i] != ((char*)&COMM_TAIL)[i]) return;
+  for (size_t i = 0; i < sizeof(COMM_HEADER); i++) if (Serial1.read() != COMM_HEADER[i]) return false;
+
+  Serial1.readBytes(_buf, FIN_NUM_PINS);
+  _buf[COMM_MSG_LEN] = '\0';
 
   for (size_t i = 0; i < FIN_NUM_PINS; i++) pos[i] = (int)_buf[i];
+  for (size_t i = 0; i < sizeof(COMM_TAIL); i++) if (Serial1.read() != COMM_TAIL[i]) return false;
+  return true;
 }

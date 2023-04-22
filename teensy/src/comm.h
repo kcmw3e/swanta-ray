@@ -37,7 +37,7 @@ class Comm {
     bool setup();
     void read();
     string next();
-    void next_servos(int pos[]);
+    bool next_servos(int pos[]);
 };
 
 #endif // SWANTA_COMM_H
