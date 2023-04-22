@@ -24,7 +24,7 @@ using namespace std;
 
 #define HEARTBEAT_DT 1000
 #define CRUMB_DT 1000
-#define FIN_DT 1000
+#define FIN_DT 2
 #define SERIAL_DT 10
 
 Comm comm;
@@ -51,6 +51,10 @@ void setup() {
   if (!fin.setup()) while (true);
   DEBUG_INFO("Fin ready to sway.");
 
+  bool res = ly.open("gait_und.csv", FILE_READ);
+  if (!res) while(true);
+  DEBUG_INFO("Opened gait successfully.");
+  
   //pinMode(LED_BUILTIN, OUTPUT);
 
   if (!setup_tasks()) while (true);
@@ -59,7 +63,6 @@ void setup() {
 
 void loop() {
   cal.tick();
-  delay(10);
 }
 
 void check_serial() {
@@ -79,9 +82,8 @@ void check_serial() {
     return;
   }
 
-  if (str == "go") {
-    int pos[] = {0};
-    fin.set(pos);
+  if (str == "cat") {
+    ly.cat("test.csv");
   }
 }
 
@@ -90,7 +92,8 @@ bool setup_tasks() {
   cal.add(check_serial, SERIAL_DT);
   cal.add(crumb_read, CRUMB_DT);
   cal.add(fin_write, FIN_DT);
-  cal.add(fin_set, 100);
+  cal.add(fin_set, 1);
+  //cal.add(save, 1000);
 
   return true;
 }
@@ -110,14 +113,24 @@ void fin_write() {
 }
 
 void fin_set() {
-  static int p = 0;
-  p = p + 1;
-  if (p > 180) p = 0;
+  int pos[FIN_NUM_PINS];
 
-  int pos[16] = {0};
-  for (size_t i = 0; i < 16; i++) {
-    pos[i] = p;
+  bool res = ly.read_csv_line(pos, FIN_NUM_PINS);
+  if (!res) return;
+
+  for (size_t i = FIN_NUM_PINS/2; i < FIN_NUM_PINS; i++) {
+    pos[i] = map(pos[i - FIN_NUM_PINS/2], FIN_POS_LO, FIN_POS_HI, FIN_POS_HI, FIN_POS_LO);
   }
+  
+  //for (size_t i = 0; i < FIN_NUM_PINS; i++) {
+  //  pos[i] = 90;
+  //}
+
+  // comm.read_servos(pos);
 
   fin.set(pos);
+}
+
+void save() {
+  ly.save_data(crumb.currents(), FIN_NUM_PINS);  
 }
