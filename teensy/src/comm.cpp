@@ -43,3 +43,14 @@ string Comm::next() {
 
   return s;
 }
+
+void Comm::next_servos(int pos[]) {
+  size_t n = Serial.available();
+  if (n < COMM_MSG_LEN) return;
+
+  Serial.readBytes(_buf, COMM_MSG_LEN);
+  for (size_t i = 0; i < sizeof(COMM_HEADER); i++) if (_buf[i] != ((char*)&COMM_HEADER)[i]) return;
+  for (size_t i = 0; i < sizeof(COMM_TAIL); i++) if (_buf[i] != ((char*)&COMM_TAIL)[i]) return;
+
+  for (size_t i = 0; i < FIN_NUM_PINS; i++) pos[i] = (int)_buf[i];
+}

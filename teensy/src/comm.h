@@ -15,11 +15,17 @@
 
 #include <string>
 
+#include "fin.h"
+
 using namespace std;
 
 #define BAUD 115200
 
 #define BUF_LEN 4096
+
+const byte COMM_HEADER[] = {0xc0, 0xff};
+const byte COMM_TAIL[] = {0xee};
+#define COMM_MSG_LEN sizeof(COMM_HEADER) + FIN_NUM_PINS + sizeof(COMM_TAIL) // bytes
 
 class Comm {
   private:
@@ -31,6 +37,7 @@ class Comm {
     bool setup();
     void read();
     string next();
+    void next_servos(int pos[]);
 };
 
 #endif // SWANTA_COMM_H
