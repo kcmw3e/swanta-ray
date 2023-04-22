@@ -39,6 +39,8 @@ void crumb_read();
 void fin_write();
 
 void setup() {
+  Serial.begin(BAUD);
+  
   if (!comm.setup()) while (true);
   DEBUG_INFO("Serial connected.");
 
@@ -115,18 +117,19 @@ void fin_write() {
 void fin_set() {
   int pos[FIN_NUM_PINS];
 
-  bool res = ly.read_csv_line(pos, FIN_NUM_PINS);
-  if (!res) return;
+  //bool res = ly.read_csv_line(pos, FIN_NUM_PINS);
+  //if (!res) return;
 
+  if (!comm.next_servos(pos)) return;
+
+
+  // for (size_t i = 0; i < FIN_NUM_PINS; i++) {
+  //   DEBUG_INFO("pos[%zu] = %d", i, pos[i]);
+  // }
+  
   for (size_t i = FIN_NUM_PINS/2; i < FIN_NUM_PINS; i++) {
     pos[i] = map(pos[i - FIN_NUM_PINS/2], FIN_POS_LO, FIN_POS_HI, FIN_POS_HI, FIN_POS_LO);
   }
-  
-  //for (size_t i = 0; i < FIN_NUM_PINS; i++) {
-  //  pos[i] = 90;
-  //}
-
-  // comm.read_servos(pos);
 
   fin.set(pos);
 }
