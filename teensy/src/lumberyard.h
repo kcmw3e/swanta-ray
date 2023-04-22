@@ -21,17 +21,22 @@
 using namespace std;
 
 #define SD_CARD BUILTIN_SDCARD
+#define LUMBERYARD_BUF_LEN 512
 
 class Lumberyard {
   private:
     File _root;
     File _pwd;
+    File _file;
+    char _buf[LUMBERYARD_BUF_LEN];
   public:
     Lumberyard();
     bool setup();
     void cd();
     void ls();
     bool mkdir(string dir);
+    bool open(const char* filepath, uint8_t mode);
+    bool read_csv_line(int buf[], size_t len);
 };
 
 #endif // SWANTA_LUMBERYARD_H

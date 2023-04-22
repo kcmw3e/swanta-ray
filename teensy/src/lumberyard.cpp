@@ -48,3 +48,32 @@ bool Lumberyard::mkdir(string dir) {
   DEBUG_INFO("> Result: %s", result ? "success" : "failure");
   return result;
 }
+
+bool Lumberyard::open(const char* filepath, uint8_t mode) {
+  _file = SD.open(filepath, mode);
+  if (!_file) return false;
+  if (_file.isDirectory()) {
+    _file.close();
+    return false;
+  }
+  return true;
+}
+
+bool Lumberyard::read_csv_line(int buf[], size_t len) {
+  if (!_file.available()) {
+    _file.seek(0);
+    return false;
+  }
+
+  size_t n = _file.readBytesUntil('\n', _buf, LUMBERYARD_BUF_LEN);
+  if (n == 0) return false;
+  
+  char* s = _buf;
+  size_t i = 0;
+  while (s < _buf + n - 1) {
+    for (char c = *s; c == ','; c = *s) s++;
+    buf[i] = strtol(s, &s, 10);
+    i++;
+  }
+  return true;
+}
