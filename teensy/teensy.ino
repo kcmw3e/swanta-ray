@@ -94,7 +94,7 @@ bool setup_tasks() {
   cal.add(check_serial, SERIAL_DT);
   cal.add(crumb_read, CRUMB_DT);
   cal.add(fin_write, FIN_DT);
-  cal.add(fin_set, 1);
+  cal.add(fin_set, 0);
   //cal.add(save, 1000);
 
   return true;
