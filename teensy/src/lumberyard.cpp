@@ -49,6 +49,24 @@ bool Lumberyard::mkdir(string dir) {
   return result;
 }
 
+bool Lumberyard::cat(const char* filepath) {
+  File file = SD.open(filepath);
+  if (!file) return false;
+  if (file.isDirectory()) {
+    file.close();
+    return false;
+  }
+
+  DEBUG_INFO("%s:\n", filepath);
+  while (file.available()) {
+    char buf[1024];
+    file.readBytes(buf, 1023);
+    buf[1023] = '\0';
+    DEBUG_INFO("%s", buf);
+  }
+  return true;
+}
+
 bool Lumberyard::open(const char* filepath, uint8_t mode) {
   _file = SD.open(filepath, mode);
   if (!_file) return false;
@@ -76,4 +94,22 @@ bool Lumberyard::read_csv_line(int buf[], size_t len) {
     i++;
   }
   return true;
+}
+
+void Lumberyard::save_data(float data[], size_t len) {
+  File file = SD.open(_savepath, FILE_WRITE);
+  if (!file) return;
+  if (file.isDirectory()) {
+    file.close();
+    return;
+  }
+
+  char buf[256];
+  for (size_t i = 0; i < len; i++) {
+    int n = sprintf(buf, "%f", data[i]);
+    file.write(buf, n);
+    file.write(',');
+  }
+  file.write('\n');
+  _file.close();
 }
