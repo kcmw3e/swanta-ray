@@ -16,7 +16,7 @@ Task::Task(task_fn* fn, size_t dt) {
 }
 
 void Task::operator()(uint32_t t) {
-  if (t - _t > _dt) {
+  if (_dt == 0 || t - _t > _dt) {
     _t = t;
     _fn();
   }
