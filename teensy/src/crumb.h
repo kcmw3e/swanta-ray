@@ -24,6 +24,7 @@ class Crumb {
     bool setup();
     void read();
     float operator[](size_t i);
+    float* currents();
 };
 
 #endif // SWANTA_CRUMB_H

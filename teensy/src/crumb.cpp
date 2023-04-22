@@ -23,7 +23,10 @@ float Crumb::operator[](size_t i) {
 void Crumb::read() {
   for (size_t i = 0; i < CRUMB_NUM_PINS; i++) {
     uint8_t pin = CRUMB_PINS[i];
-    if (i > 0) return;
     _currents[i] = analogRead(pin)/1023.0*3.3*CRUMB_CALIBRATIONS[i];
   }
+}
+
+float* Crumb::currents() {
+  return _currents;
 }
