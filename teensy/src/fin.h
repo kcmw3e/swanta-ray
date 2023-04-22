@@ -13,6 +13,8 @@
 
 const uint8_t FIN_PINS[] = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 28, 29, 36, 37 };
 const size_t FIN_NUM_PINS = sizeof(FIN_PINS)/sizeof(*FIN_PINS);
+const int FIN_OFFSETS[] = { -10, -6, -4, -2, -1, -10, -1, -2, // left side offsets
+                             -0, -7, -6, -3, -3, -18, -6, -8 }; // right side offsets
 
 #define FIN_PWM_FREQ 240.0 // Hz
 #define FIN_PWM_BITS 15
