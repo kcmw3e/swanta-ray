@@ -96,7 +96,7 @@ bool Lumberyard::read_csv_line(int buf[], size_t len) {
   return true;
 }
 
-void Lumberyard::save_data(float data[], size_t len) {
+void Lumberyard::save_csv_line(float data[], size_t len) {
   File file = SD.open(_savepath, FILE_WRITE);
   if (!file) return;
   if (file.isDirectory()) {
@@ -105,11 +105,12 @@ void Lumberyard::save_data(float data[], size_t len) {
   }
 
   char buf[256];
+  char sep = ',';
   for (size_t i = 0; i < len; i++) {
     int n = sprintf(buf, "%f", data[i]);
     file.write(buf, n);
-    file.write(',');
+    if (i == len - 1) sep = '\n';
+    file.write(sep);
   }
-  file.write('\n');
   _file.close();
 }

@@ -135,5 +135,5 @@ void fin_set() {
 }
 
 void save() {
-  ly.save_data(crumb.currents(), FIN_NUM_PINS);  
+  ly.save_csv_line(crumb.currents(), FIN_NUM_PINS);  
 }
