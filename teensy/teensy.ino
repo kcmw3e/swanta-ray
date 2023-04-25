@@ -20,23 +20,29 @@
 
 using namespace std;
 
-#define SD_CARD BUILTIN_SDCARD
+// configurations
+#define FIN_CSV_CONTROL 0
+#define BEAT_HEART 0
 
-#define HEARTBEAT_DT 1000
-#define CRUMB_DT 1000
-#define FIN_DT 2
-#define SERIAL_DT 10
+// all intervals in ms
+#define HEARTBEAT_INTERVAL 1000
+#define CRUMB_INTERVAL 300
+#define SAVE_INTERVAL 1000
+#define FIN_CSV_UPDATE_INTERVAL 10
+#define FIN_SERIAL_UPDATE_INTERVAL 0
+#define SERIAL_INTERVAL 10
+
+#define GAIT_FILE_UND "gait_und.csv"
+#define GAIT_FILE_OSC "gait_und.csv"
+#define GAIT_FILE GAIT_FILE_UND
+
+#define SAVE_FILE "data.csv"
 
 Comm comm;
 Lumberyard ly;
 Crumb crumb;
 Cal cal;
 Fin fin;
-
-bool setup_tasks();
-void heartbeat();
-void crumb_read();
-void fin_write();
 
 void setup() {
   Serial.begin(BAUD);
@@ -53,11 +59,17 @@ void setup() {
   if (!fin.setup()) while (true);
   DEBUG_INFO("Fin ready to sway.");
 
-  bool res = ly.open("gait_und.csv", FILE_READ);
-  if (!res) while(true);
-  DEBUG_INFO("Opened gait successfully.");
-  
-  //pinMode(LED_BUILTIN, OUTPUT);
+# if FIN_CSV_CONTROL
+    if (!ly.open_gait(GAIT_FILE)) while(true);
+    DEBUG_INFO("Opened gait file successfully.");
+# endif // FIN_CSV_CONTROL
+
+  if (!ly.open_save(SAVE_FILE)) while(true);
+  DEBUG_INFO("Opened save file successfully.");
+
+# if BEAT_HEART
+    pinMode(LED_BUILTIN, OUTPUT);
+# endif // BEAT_HEART
 
   if (!setup_tasks()) while (true);
   DEBUG_INFO("Tasks setup.");
@@ -90,12 +102,19 @@ void check_serial() {
 }
 
 bool setup_tasks() {
-  //cal.add(heartbeat, HEARTBEAT_DT);
-  cal.add(check_serial, SERIAL_DT);
-  cal.add(crumb_read, CRUMB_DT);
-  cal.add(fin_write, FIN_DT);
-  cal.add(fin_set, 0);
-  //cal.add(save, 1000);
+#  if BEAT_HEART
+    cal.add(heartbeat, HEARTBEAT_DT);
+#  endif // BEAT_HEART
+
+  cal.add(check_serial, SERIAL_INTERVAL);
+  cal.add(crumb_read, CRUMB_INTERVAL);
+  cal.add(save, SAVE_INTERVAL);
+
+# if FIN_CSV_CONTROL
+    cal.add(fin_csv_update, FIN_CSV_UPDATE_INTERVAL);
+# else
+    cal.add(fin_serial_update, FIN_SERIAL_UPDATE_INTERVAL);
+# endif // FIN_CSV_CONTROL
 
   return true;
 }
@@ -110,30 +129,33 @@ void crumb_read() {
   crumb.read();
 }
 
-void fin_write() {
-  fin.write();
-}
-
-void fin_set() {
+void fin_serial_update() {
   int pos[FIN_NUM_PINS];
-
-  //bool res = ly.read_csv_line(pos, FIN_NUM_PINS);
-  //if (!res) return;
 
   if (!comm.next_servos(pos)) return;
 
-
-  // for (size_t i = 0; i < FIN_NUM_PINS; i++) {
-  //   DEBUG_INFO("pos[%zu] = %d", i, pos[i]);
-  // }
-  
   for (size_t i = FIN_NUM_PINS/2; i < FIN_NUM_PINS; i++) {
     pos[i] = map(pos[i - FIN_NUM_PINS/2], FIN_POS_LO, FIN_POS_HI, FIN_POS_HI, FIN_POS_LO);
   }
 
   fin.set(pos);
+  fin.write();
+}
+
+void fin_csv_update() {
+  int pos[FIN_NUM_PINS];
+
+  bool res = ly.read_csv_line(pos, FIN_NUM_PINS);
+  if (!res) return;
+
+  for (size_t i = FIN_NUM_PINS/2; i < FIN_NUM_PINS; i++) {
+    pos[i] = map(pos[i - FIN_NUM_PINS/2], FIN_POS_LO, FIN_POS_HI, FIN_POS_HI, FIN_POS_LO);
+  }
+
+  fin.set(pos);
+  fin.write();
 }
 
 void save() {
-  ly.save_csv_line(crumb.currents(), FIN_NUM_PINS);  
+  ly.save_csv_line(crumb.voltages(), crumb.currents());  
 }

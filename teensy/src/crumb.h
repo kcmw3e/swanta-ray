@@ -19,11 +19,13 @@ const size_t CRUMB_NUM_PINS = sizeof(CRUMB_PINS)/sizeof(*CRUMB_PINS);
 
 class Crumb {
   private:
+    int _voltages[CRUMB_NUM_PINS];
     float _currents[CRUMB_NUM_PINS];
   public:
     bool setup();
     void read();
     float operator[](size_t i);
+    int* voltages();
     float* currents();
 };
 

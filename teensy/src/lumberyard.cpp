@@ -7,6 +7,7 @@
 #include <Arduino_DebugUtils.h>
 
 #include "lumberyard.h"
+#include "crumb.h"
 
 Lumberyard::Lumberyard() {
   _root = File();
@@ -67,23 +68,54 @@ bool Lumberyard::cat(const char* filepath) {
   return true;
 }
 
-bool Lumberyard::open(const char* filepath, uint8_t mode) {
-  _file = SD.open(filepath, mode);
-  if (!_file) return false;
-  if (_file.isDirectory()) {
-    _file.close();
+bool Lumberyard::open_gait(const char* filepath) {
+  _file_gait = SD.open(filepath, FILE_READ);
+  if (!_file_gait) return false;
+  if (_file_gait.isDirectory()) {
+    _file_gait.close();
     return false;
   }
   return true;
 }
 
-bool Lumberyard::read_csv_line(int buf[], size_t len) {
-  if (!_file.available()) {
-    _file.seek(0);
+bool Lumberyard::open_save(const char* filepath) {
+  _file_save = SD.open(filepath, FILE_WRITE);
+  if (!_file_save) return false;
+  if (_file_save.isDirectory()) {
+    _file_save.close();
     return false;
   }
 
-  size_t n = _file.readBytesUntil('\n', _buf, LUMBERYARD_BUF_LEN);
+  char sep = ',';
+  _file_save.write(LUMBERYARD_HEADER_TIME);
+  _file_save.write(sep);
+# if LUMBERYARD_SAVE_VOLTAGES
+    for (size_t i = 0; i < CRUMB_NUM_PINS; i++) {
+      _file_save.write(LUMBERYARD_HEADER_VOLTAGES);
+      _file_save.write(" ");
+      _file_save.print(i);
+      _file_save.write(sep);
+    }
+#endif // LUMBERYARD_SAVE_VOLTAGES
+
+  for (size_t i = 0; i < CRUMB_NUM_PINS; i++) {
+      _file_save.write(LUMBERYARD_HEADER_CURRENTS);
+      _file_save.write(" ");
+      _file_save.print(i);
+      if (i == CRUMB_NUM_PINS - 1) sep = '\n';
+      _file_save.write(sep);
+    }
+
+  return true;
+}
+
+bool Lumberyard::read_csv_line(int buf[], size_t len) {
+  if (!_file_gait.available()) {
+    _file_gait.seek(0);
+    return false;
+  }
+
+  size_t n = _file_gait.readBytesUntil('\n', _buf, LUMBERYARD_BUF_LEN);
   if (n == 0) return false;
   
   char* s = _buf;
@@ -96,21 +128,32 @@ bool Lumberyard::read_csv_line(int buf[], size_t len) {
   return true;
 }
 
-void Lumberyard::save_csv_line(float data[], size_t len) {
-  File file = SD.open(_savepath, FILE_WRITE);
-  if (!file) return;
-  if (file.isDirectory()) {
-    file.close();
-    return;
-  }
+void Lumberyard::save_csv_line(int voltages[], float currents[]) {
+  _file_save.print(millis());
+  _file_save.write(",");
+# if LUMBERYARD_SAVE_VOLTAGES
+    save_csv_voltages(voltages);
+# endif // LUMBERYARD_SAVE_VOLTAGES
+  save_csv_currents(currents);
+}
 
+void Lumberyard::save_csv_voltages(int voltages[]) {
   char buf[256];
   char sep = ',';
-  for (size_t i = 0; i < len; i++) {
-    int n = sprintf(buf, "%f", data[i]);
-    file.write(buf, n);
-    if (i == len - 1) sep = '\n';
-    file.write(sep);
+  for (size_t i = 0; i < CRUMB_NUM_PINS; i++) {
+    int n = sprintf(buf, "%d", voltages[i]);
+    _file_save.write(buf, n);
+    _file_save.write(sep);
   }
-  _file.close();
+}
+
+void Lumberyard::save_csv_currents(float currents[]) {
+  char buf[256];
+  char sep = ',';
+  for (size_t i = 0; i < CRUMB_NUM_PINS; i++) {
+    int n = sprintf(buf, "%f", currents[i]);
+    _file_save.write(buf, n);
+    if (i == CRUMB_NUM_PINS - 1) sep = '\n';
+    _file_save.write(sep);
+  }
 }

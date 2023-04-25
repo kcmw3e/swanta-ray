@@ -20,16 +20,23 @@
 
 using namespace std;
 
+// configuration
+#define LUMBERYARD_SAVE_VOLTAGES 1
+
 #define SD_CARD BUILTIN_SDCARD
 #define LUMBERYARD_BUF_LEN 512
+
+#define LUMBERYARD_HEADER_TIME "Time [ms]"
+#define LUMBERYARD_HEADER_CURRENTS "Current [A]"
+#define LUMBERYARD_HEADER_VOLTAGES "Voltage [V]"
 
 class Lumberyard {
   private:
     File _root;
     File _pwd;
-    File _file;
+    File _file_gait;
+    File _file_save;
     char _buf[LUMBERYARD_BUF_LEN];
-    const char* _savepath = "test.csv";
   public:
     Lumberyard();
     bool setup();
@@ -37,9 +44,12 @@ class Lumberyard {
     void ls();
     bool mkdir(string dir);
     bool cat(const char* filepath);
-    bool open(const char* filepath, uint8_t mode);
+    bool open_gait(const char* filepath);
+    bool open_save(const char* filepath);
     bool read_csv_line(int buf[], size_t len);
-    void save_csv_line(float data[], size_t len);
+    void save_csv_line(int voltages[], float currents[]);
+    void save_csv_voltages(int voltages[]);
+    void save_csv_currents(float currents[]);
 };
 
 #endif // SWANTA_LUMBERYARD_H
