@@ -25,6 +25,7 @@ const char *ssid = "CMU-DEVICE";
 const char *password = "";
 
 volatile bool modifying_traj = false;
+volatile bool running_traj = false;
 
 void notFound(AsyncWebServerRequest *request) {
     request->send(404, "text/plain", "Not found");
@@ -65,6 +66,26 @@ void setup() {
         } else {
             request->send(400, "text/plain", "BAD REQUEST");
         }
+    });
+
+    server.on("/start", HTTP_POST, [](AsyncWebServerRequest *request) {
+        while (modifying_traj)
+            ;
+        modifying_traj = true;
+        traj_index = 0;
+        traj_starttime = (float)micros() / 1000000.0;
+        running_traj = true;
+        modifying_traj = false;
+        request->send(200, "text/plain", "OK");
+    });
+
+    server.on("/stop", HTTP_POST, [](AsyncWebServerRequest *request) {
+        while (modifying_traj)
+            ;
+        modifying_traj = true;
+        running_traj = false;
+        modifying_traj = false;
+        request->send(200, "text/plain", "OK");
     });
 
     // Send a POST request to <IP>/post with a form field message set to <message>
@@ -114,23 +135,26 @@ void setup() {
 }
 
 void loop() {
+    if (!running_traj) {
+        return;
+    }
     while (modifying_traj)
         ;
     modifying_traj = true;
     float current_time = (float)micros() / 1000000.0;
-    if(current_time - traj_starttime > traj[traj_index].seconds) {
+    if (current_time - traj_starttime > traj[traj_index].seconds) {
         // Serial.println(current_time);
         uint8_t buf[19];
         buf[0] = 0xC0;
         buf[1] = 0xFF;
-        for(int i = 0; i < NUM_SERVOS; i++) {
+        for (int i = 0; i < NUM_SERVOS; i++) {
             buf[2 + i] = traj[traj_index].positions[i];
         }
         buf[18] = 0xEE;
         Serial.write(buf, 19);
 
         traj_index++;
-        if(traj_index >= traj_length) {
+        if (traj_index >= traj_length) {
             traj_index = 0;
             traj_starttime = current_time;
         }
