@@ -11,7 +11,10 @@
 bool Crumb::setup() {
   for (size_t i = 0; i < CRUMB_NUM_PINS; i++) {
     pinMode(CRUMB_PINS[i], INPUT);
+    _current_buffer[i] = 0;
   }
+  analogReadAveraging(1);
+  analogReadResolution(8);
 
   return true;
 }
@@ -24,8 +27,18 @@ void Crumb::read() {
   for (size_t i = 0; i < CRUMB_NUM_PINS; i++) {
     uint8_t pin = CRUMB_PINS[i];
     int V = analogRead(pin);
-    _voltages[i] = V;
-    _currents[i] = V/1023.0*3.3*CRUMB_CALIBRATIONS[i];
+    _current_buffer[i] += V;
+  }
+  _current_buffer_count++;
+
+  if(_current_buffer_count == CRUMB_NUM_SAMPLES_FOR_AVERAGE) {
+    for (size_t i = 0; i < CRUMB_NUM_PINS; i++) {
+      int V = _current_buffer[i] / _current_buffer_count;
+      _voltages[i] = V;
+      _currents[i] = V/255.0*3.3*CRUMB_CALIBRATIONS[i];
+      _current_buffer[i] = 0;
+    }
+    _current_buffer_count = 0;
   }
 }
 

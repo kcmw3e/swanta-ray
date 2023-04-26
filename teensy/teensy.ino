@@ -24,13 +24,13 @@ using namespace std;
 #define FIN_CSV_CONTROL 0
 #define BEAT_HEART 0
 
-// all intervals in ms
-#define HEARTBEAT_INTERVAL 1000
-#define CRUMB_INTERVAL 300
-#define SAVE_INTERVAL 1000
-#define FIN_CSV_UPDATE_INTERVAL 10
-#define FIN_SERIAL_UPDATE_INTERVAL 0
-#define SERIAL_INTERVAL 10
+// all intervals in microseconds
+#define HEARTBEAT_INTERVAL 1000000
+#define CRUMB_INTERVAL 60 // Reading the sensors takes ~50us
+#define SAVE_INTERVAL 20000
+#define FIN_CSV_UPDATE_INTERVAL 10000
+#define FIN_SERIAL_UPDATE_INTERVAL 100
+#define SERIAL_INTERVAL 10000
 
 #define GAIT_FILE_UND "gait_und.csv"
 #define GAIT_FILE_OSC "gait_und.csv"

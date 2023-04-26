@@ -12,7 +12,7 @@
 Task::Task(task_fn* fn, size_t dt) {
   _fn = fn;
   _dt = dt;
-  _t = millis();
+  _t = micros();
 }
 
 void Task::operator()(uint32_t t) {
@@ -23,7 +23,7 @@ void Task::operator()(uint32_t t) {
 }
 
 Cal::Cal() {
-  _t = millis();
+  _t = micros();
 }
 
 bool Cal::setup() {
@@ -31,7 +31,7 @@ bool Cal::setup() {
 }
 
 void Cal::tick() {
-  _t = millis();
+  _t = micros();
   for (size_t i = 0; i < _tasks.size(); i++) {
     Task& task = _tasks[i];
     task(_t);
