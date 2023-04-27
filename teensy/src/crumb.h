@@ -20,7 +20,7 @@ const size_t CRUMB_NUM_SAMPLES_FOR_AVERAGE = 333;
 
 class Crumb {
   private:
-    int _voltages[CRUMB_NUM_PINS];
+    float _voltages[CRUMB_NUM_PINS];
     float _currents[CRUMB_NUM_PINS];
 
     long _current_buffer[CRUMB_NUM_PINS]; // We sample fast and add the measurements to this buffer.
@@ -29,7 +29,7 @@ class Crumb {
     bool setup();
     void read();
     float operator[](size_t i);
-    int* voltages();
+    float* voltages();
     float* currents();
 };
 

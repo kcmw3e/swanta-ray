@@ -34,7 +34,7 @@ void Crumb::read() {
   if(_current_buffer_count == CRUMB_NUM_SAMPLES_FOR_AVERAGE) {
     for (size_t i = 0; i < CRUMB_NUM_PINS; i++) {
       int V = _current_buffer[i] / _current_buffer_count;
-      _voltages[i] = V;
+      _voltages[i] = map((float)V, 0.0, 255.0, 0.0, 5.0);
       _currents[i] = V/255.0*3.3*CRUMB_CALIBRATIONS[i];
       _current_buffer[i] = 0;
     }
@@ -42,7 +42,7 @@ void Crumb::read() {
   }
 }
 
-int* Crumb::voltages() {
+float* Crumb::voltages() {
   return _voltages;
 }
 

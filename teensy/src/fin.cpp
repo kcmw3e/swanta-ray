@@ -19,13 +19,21 @@ bool Fin::setup() {
     analogWriteFrequency(pin, FIN_PWM_FREQ);
     analogWriteResolution(FIN_PWM_BITS);
     pinMode(pin, OUTPUT);
+
+    _pos[i] = 0;
   }
+
+  write();
 
   return true;
 }
 
 void Fin::set(int pos[]) {
   for (size_t i = 0; i < FIN_NUM_PINS; i++) _pos[i] = pos[i];
+}
+
+int* Fin::get() {
+  return _pos;
 }
 
 void Fin::write() {

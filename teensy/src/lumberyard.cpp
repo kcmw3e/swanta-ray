@@ -7,6 +7,7 @@
 #include <Arduino_DebugUtils.h>
 
 #include "lumberyard.h"
+#include "fin.h"
 #include "crumb.h"
 
 Lumberyard::Lumberyard() {
@@ -89,6 +90,16 @@ bool Lumberyard::open_save(const char* filepath) {
   char sep = ',';
   _file_save.write(LUMBERYARD_HEADER_TIME);
   _file_save.write(sep);
+
+# if LUMBERYARD_SAVE_POS
+    for (size_t i = 0; i < FIN_NUM_PINS; i++) {
+      _file_save.write(LUMBERYARD_HEADER_POS);
+      _file_save.write(" ");
+      _file_save.print(i);
+      _file_save.write(sep);
+    }
+#endif // LUMBERYARD_SAVE_POS
+
 # if LUMBERYARD_SAVE_VOLTAGES
     for (size_t i = 0; i < CRUMB_NUM_PINS; i++) {
       _file_save.write(LUMBERYARD_HEADER_VOLTAGES);
@@ -106,7 +117,7 @@ bool Lumberyard::open_save(const char* filepath) {
       _file_save.write(sep);
     }
   
-  _file_save.close();
+  _file_save.flush();
 
   return true;
 }
@@ -130,29 +141,37 @@ bool Lumberyard::read_csv_line(int buf[], size_t len) {
   return true;
 }
 
-void Lumberyard::save_csv_line(int voltages[], float currents[]) {
-  _file_save = SD.open(filepath, FILE_WRITE);
-  if (!_file_save) return;
-  if (_file_save.isDirectory()) {
-    _file_save.close();
-    return;
-  }
-
+void Lumberyard::save_csv_line(float voltages[], float currents[], int pos[]) {
   _file_save.print(millis());
   _file_save.write(",");
+
+# if LUMBERYARD_SAVE_POS
+    save_csv_pos(pos);
+# endif // LUMBERYARD_SAVE_VOLTAGES
+
 # if LUMBERYARD_SAVE_VOLTAGES
     save_csv_voltages(voltages);
 # endif // LUMBERYARD_SAVE_VOLTAGES
   save_csv_currents(currents);
 
-  _file_save.close();
+  _file_save.flush();
 }
 
-void Lumberyard::save_csv_voltages(int voltages[]) {
+void Lumberyard::save_csv_pos(int pos[]) {
+  char buf[256];
+  char sep = ',';
+  for (size_t i = 0; i < FIN_NUM_PINS; i++) {
+    int n = sprintf(buf, "%d", pos[i]);
+    _file_save.write(buf, n);
+    _file_save.write(sep);
+  }
+}
+
+void Lumberyard::save_csv_voltages(float voltages[]) {
   char buf[256];
   char sep = ',';
   for (size_t i = 0; i < CRUMB_NUM_PINS; i++) {
-    int n = sprintf(buf, "%d", voltages[i]);
+    int n = sprintf(buf, "%f", voltages[i]);
     _file_save.write(buf, n);
     _file_save.write(sep);
   }

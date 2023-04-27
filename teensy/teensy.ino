@@ -157,5 +157,5 @@ void fin_csv_update() {
 }
 
 void save() {
-  ly.save_csv_line(crumb.voltages(), crumb.currents());  
+  ly.save_csv_line(crumb.voltages(), crumb.currents(), fin.get());  
 }

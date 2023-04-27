@@ -34,6 +34,7 @@ class Fin {
   public:
     bool setup();
     void set(int pos[]);
+    int* get();
     void write();
 };
 

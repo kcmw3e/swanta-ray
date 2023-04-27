@@ -22,6 +22,7 @@ using namespace std;
 
 // configuration
 #define LUMBERYARD_SAVE_VOLTAGES 1
+#define LUMBERYARD_SAVE_POS 1
 
 #define SD_CARD BUILTIN_SDCARD
 #define LUMBERYARD_BUF_LEN 512
@@ -29,6 +30,7 @@ using namespace std;
 #define LUMBERYARD_HEADER_TIME "Time [ms]"
 #define LUMBERYARD_HEADER_CURRENTS "Current [A]"
 #define LUMBERYARD_HEADER_VOLTAGES "Voltage [V]"
+#define LUMBERYARD_HEADER_POS "Pos [deg*]"
 
 class Lumberyard {
   private:
@@ -47,8 +49,9 @@ class Lumberyard {
     bool open_gait(const char* filepath);
     bool open_save(const char* filepath);
     bool read_csv_line(int buf[], size_t len);
-    void save_csv_line(int voltages[], float currents[]);
-    void save_csv_voltages(int voltages[]);
+    void save_csv_line(float voltages[], float currents[], int pos[]);
+    void save_csv_voltages(float voltages[]);
+    void save_csv_pos(int pos[]);
     void save_csv_currents(float currents[]);
 };
 
