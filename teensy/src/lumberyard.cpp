@@ -105,6 +105,8 @@ bool Lumberyard::open_save(const char* filepath) {
       if (i == CRUMB_NUM_PINS - 1) sep = '\n';
       _file_save.write(sep);
     }
+  
+  _file_save.close();
 
   return true;
 }
@@ -129,12 +131,21 @@ bool Lumberyard::read_csv_line(int buf[], size_t len) {
 }
 
 void Lumberyard::save_csv_line(int voltages[], float currents[]) {
+  _file_save = SD.open(filepath, FILE_WRITE);
+  if (!_file_save) return;
+  if (_file_save.isDirectory()) {
+    _file_save.close();
+    return;
+  }
+
   _file_save.print(millis());
   _file_save.write(",");
 # if LUMBERYARD_SAVE_VOLTAGES
     save_csv_voltages(voltages);
 # endif // LUMBERYARD_SAVE_VOLTAGES
   save_csv_currents(currents);
+
+  _file_save.close();
 }
 
 void Lumberyard::save_csv_voltages(int voltages[]) {
