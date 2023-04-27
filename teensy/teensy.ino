@@ -34,7 +34,7 @@ using namespace std;
 
 #define GAIT_FILE_UND "gait_und.csv"
 #define GAIT_FILE_OSC "gait_und.csv"
-#define GAIT_FILE GAIT_FILE_UND
+#define GAIT_FILE "gait.csv"
 
 #define SAVE_FILE "data.csv"
 
