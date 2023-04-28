@@ -20,7 +20,7 @@ bool Fin::setup() {
     analogWriteResolution(FIN_PWM_BITS);
     pinMode(pin, OUTPUT);
 
-    _pos[i] = 0;
+    _pos[i] = 90;
   }
 
   write();
